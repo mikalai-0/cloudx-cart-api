@@ -15,3 +15,7 @@ export type Cart = {
   id: string,
   items: CartItem[],
 }
+
+export const cartTableName = '"carts"';
+
+export const cartItemTableName = '"cart_items"';

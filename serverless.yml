@@ -1,0 +1,58 @@
+service: cloudx-cart-api
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: dev
+  region: eu-west-1
+  environment:
+    PG_HOST: ${env:PG_HOST}
+    PG_PORT: ${env:PG_PORT}
+    PG_DATABASE: ${env:PG_DATABASE}
+    PG_USER: ${env:PG_USER}
+    PG_PASSWORD: ${env:PG_PASSWORD}
+    GET_PRODUCT_LIST_LAMBDA_ARN: ${env:GET_PRODUCT_LIST_LAMBDA_ARN}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: 'lambda:InvokeFunction'
+          Resource: '*'
+        - Effect: Allow
+          Action: 'lambda:InvokeAsync'
+          Resource: '*'
+
+custom:
+  lambdasPath: dist/functions/index
+
+functions:
+  main:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
+  findUserCart:
+    handler: ${self:custom.lambdasPath}.findUserCart
+    events:
+      - http:
+          method: GET
+          path: cart/{userId}
+  clearUserCart:
+    handler: ${self:custom.lambdasPath}.clearUserCart
+    events:
+      - http:
+          method: DELETE
+          path: cart/{userId}
+  updateUserCart:
+    handler: ${self:custom.lambdasPath}.updateUserCart
+    events:
+      - http:
+          method: PUT
+          path: cart/{userId}
